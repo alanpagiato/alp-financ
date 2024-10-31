@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -21,15 +21,34 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
 
-    setTimeout(() => {
-      setLoading(false);
-      if (username === "admin" && password === "admin") {
-        router.push("/dashboard");
-      } else {
-        setError("Usuário ou senha incorretos");
-        setAlertVisible(true);
+    try {
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ username, password }),
+      });
+  
+      const data = await response.json();
+  
+      if (!response.ok) {
+        throw new Error(data.message || 'Erro no login');
       }
-    }, 1000);
+  
+      // Armazena o token JWT (opcional: localStorage ou cookies)
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+      }
+  
+      // Redireciona para o dashboard
+      router.push('/dashboard');
+    } catch (error: any) {
+      setError(error.message || 'Erro inesperado');
+      setAlertVisible(true);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
