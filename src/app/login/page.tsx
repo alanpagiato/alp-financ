@@ -20,7 +20,7 @@ export default function LoginPage() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-
+    
     try {
       const response = await fetch('/api/auth/login', {
         method: 'POST',
@@ -29,20 +29,14 @@ export default function LoginPage() {
         },
         body: JSON.stringify({ username, password }),
       });
-  
+      
       const data = await response.json();
-  
+      
       if (!response.ok) {
         throw new Error(data.message || 'Erro no login');
       }
   
-      // Armazena o token JWT (opcional: localStorage ou cookies)
-      if (data.token) {
-        localStorage.setItem('token', data.token);
-      }
-  
-      // Redireciona para o dashboard
-      router.push('/dashboard');
+      router.push('/');
     } catch (error: any) {
       setError(error.message || 'Erro inesperado');
       setAlertVisible(true);

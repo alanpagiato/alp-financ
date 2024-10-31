@@ -33,6 +33,7 @@ import {
 const items = [
   {
     title: "Contas",
+    url: "",
     options: [
       { title: "Inserir", url: "/bankAccount/add" },
       { title: "Pesquisar", url: "/bankAccount" },
@@ -51,10 +52,19 @@ const items = [
 
 const utilities = [
   {
-    title: "Trocar a Senha",
-    url: "/change-password",
+    title: "Gerenciar Senhas",
+    options: [
+      { title: "Usuários", url: "/user" },
+      { title: "Grupos de Usuários", url: "/userGroup" },
+    ],
     icon: KeyRound,
   },
+  { 
+    title: "Trocar a Senha", 
+    url: "/change-password",
+    icon: KeyRound 
+  },
+  
 ]
 
 export function AppSidebar() {
@@ -86,22 +96,33 @@ export function AppSidebar() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-[--radix-popper-anchor-width]">
                     {items.map((item) => (
-                      <DropdownMenuSub key={item.title}>
-                        <DropdownMenuSubTrigger>
-                          <item.icon className="h-4 w-4 mr-2" />
-                          <span className="text-sm">{item.title}</span>
-                        </DropdownMenuSubTrigger>
-                        <DropdownMenuSubContent className="text-xs">
-                          {item.options.map((option) => (
-                            <DropdownMenuItem key={option.title} className="flex items-start gap-2">
+                        item.options && item.options.length > 0 ? (
+                          <DropdownMenuSub key={item.title}>
+                            <DropdownMenuSubTrigger>
+                              <item.icon className="h-4 w-4 mr-2" />
+                              <span className="text-sm">{item.title}</span>
+                            </DropdownMenuSubTrigger>
+                            <DropdownMenuSubContent className="text-xs">
+                              {item?.options?.map((option) => (
+                                <DropdownMenuItem key={option.title} className="flex items-start gap-2">
+                                  <SidebarMenuButton asChild>
+                                    <a href={option.url}>{option.title}</a>
+                                  </SidebarMenuButton>
+                                </DropdownMenuItem>
+                              ))}
+                            </DropdownMenuSubContent>
+                          </DropdownMenuSub>
+                        ):(
+                            <DropdownMenuItem key={item.title} className="flex items-start gap-2">
                               <SidebarMenuButton asChild>
-                                <a href={option.url}>{option.title}</a>
+                                <a href={item?.url}>
+                                  <item.icon className="h-4 w-4 mr-2" />
+                                  <span className="text-sm">{item.title}</span>
+                                </a>
                               </SidebarMenuButton>
                             </DropdownMenuItem>
-                          ))}
-                        </DropdownMenuSubContent>
-                      </DropdownMenuSub>
-                    ))} 
+                        )
+                      ))}
                   </DropdownMenuContent>
                 </DropdownMenu>
               </SidebarMenuItem>
@@ -116,14 +137,32 @@ export function AppSidebar() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-[--radix-popper-anchor-width]">
                     {utilities.map((utility) => (
-                      <DropdownMenuItem key={utility.title}>
-                        <SidebarMenuButton asChild>
-                          <a href={utility.url}>
+                      utility.options && utility.options.length > 0 ? (
+                        <DropdownMenuSub key={utility.title}>
+                          <DropdownMenuSubTrigger>
                             <utility.icon className="h-4 w-4 mr-2" />
                             <span className="text-sm">{utility.title}</span>
-                          </a>
-                        </SidebarMenuButton>
-                      </DropdownMenuItem>
+                          </DropdownMenuSubTrigger>
+                          <DropdownMenuSubContent className="text-xs">
+                            {utility?.options?.map((option) => (
+                              <DropdownMenuItem key={option.title} className="flex items-start gap-2">
+                                <SidebarMenuButton asChild>
+                                  <a href={option.url}>{option.title}</a>
+                                </SidebarMenuButton>
+                              </DropdownMenuItem>
+                            ))}
+                          </DropdownMenuSubContent>
+                        </DropdownMenuSub>
+                      ):(
+                          <DropdownMenuItem key={utility.title} className="flex items-start gap-2">
+                            <SidebarMenuButton asChild>
+                              <a href={utility.url}>
+                                <utility.icon className="h-4 w-4 mr-2" />
+                                <span className="text-sm">{utility.title}</span>
+                              </a>
+                            </SidebarMenuButton>
+                          </DropdownMenuItem>
+                      )
                     ))} 
                   </DropdownMenuContent>
                 </DropdownMenu>
