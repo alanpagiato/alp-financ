@@ -57,3 +57,25 @@ model BankAccount {
 
   @@index([name])
 }
+
+model AccountPlan {
+  id               Int      @id @default(autoincrement())
+  description      String   @unique
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  accountSubPlans AccountSubPlan[] @relation("AccountPlanToAccountSubPlan")
+}
+
+model AccountSubPlan {
+  id            Int      @id @default(autoincrement()) // ID numérico e auto-incremental
+  description   String   
+  accountPlanId Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  accountPlan AccountPlan @relation(name: "AccountPlanToAccountSubPlan", fields: [accountPlanId], references: [id])
+  
+  @@unique([accountPlanId, description])
+}
