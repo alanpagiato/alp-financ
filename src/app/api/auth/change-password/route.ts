@@ -4,9 +4,9 @@ import bcrypt from 'bcrypt';
 
 export async function PUT(req: Request) {
     try {
-        const { username, senhaAnterior, novaSenha } = await req.json();
+        const { username, prevPassword, newPassword } = await req.json();
 
-        if (!username || !senhaAnterior || !novaSenha) {
+        if (!username || !prevPassword || !newPassword) {
             return NextResponse.json({ message: 'Todos os campos são obrigatórios' }, { status: 400 });
         }
 
@@ -18,12 +18,12 @@ export async function PUT(req: Request) {
             return NextResponse.json({ message: 'Usuário não encontrado' }, { status: 404 });
         }
 
-        const isPasswordValid = await bcrypt.compare(senhaAnterior, user.password);
+        const isPasswordValid = await bcrypt.compare(prevPassword, user.password);
         if (!isPasswordValid) {
             return NextResponse.json({ message: 'Senha anterior incorreta' }, { status: 401 });
         }
 
-        const hashedNewPassword = await bcrypt.hash(novaSenha, 10);
+        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
 
         await prisma.user.update({
             where: { username },

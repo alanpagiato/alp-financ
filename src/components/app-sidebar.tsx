@@ -1,5 +1,7 @@
 'use client';
 
+import { useState, useEffect } from 'react';
+
 import { 
   ChevronDown, 
   Landmark, 
@@ -58,16 +60,39 @@ const utilities = [
       { title: "Grupos de Usuários", url: "/userGroup" },
     ],
     icon: KeyRound,
+    requiresAdmin: true,
   },
   { 
     title: "Trocar a Senha", 
-    url: "/change-password",
+    url: "/user/change-password",
     icon: KeyRound 
   },
   
 ]
 
 export function AppSidebar() {
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchUser() {
+      try {
+        const response = await fetch('/api/auth/me');
+        const data = await response.json();
+        
+        if (response.ok) {
+          setIsAdmin(data.isAdmin);
+        }
+      } catch (error) {
+        console.error("Erro ao buscar informações do usuário", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    
+    fetchUser();
+  }, []);
+
   return (
     <Sidebar>
       <SidebarHeader>
@@ -136,24 +161,27 @@ export function AppSidebar() {
                     </SidebarMenuButton>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-[--radix-popper-anchor-width]">
-                    {utilities.map((utility) => (
-                      utility.options && utility.options.length > 0 ? (
-                        <DropdownMenuSub key={utility.title}>
-                          <DropdownMenuSubTrigger>
-                            <utility.icon className="h-4 w-4 mr-2" />
-                            <span className="text-sm">{utility.title}</span>
-                          </DropdownMenuSubTrigger>
-                          <DropdownMenuSubContent className="text-xs">
-                            {utility?.options?.map((option) => (
-                              <DropdownMenuItem key={option.title} className="flex items-start gap-2">
-                                <SidebarMenuButton asChild>
-                                  <a href={option.url}>{option.title}</a>
-                                </SidebarMenuButton>
-                              </DropdownMenuItem>
-                            ))}
-                          </DropdownMenuSubContent>
-                        </DropdownMenuSub>
-                      ):(
+                    {utilities
+                      .filter((utility) => !utility.requiresAdmin || isAdmin)
+                      .map((utility) => 
+                      (
+                        utility.options && utility.options.length > 0 ? (
+                          <DropdownMenuSub key={utility.title}>
+                            <DropdownMenuSubTrigger>
+                              <utility.icon className="h-4 w-4 mr-2" />
+                              <span className="text-sm">{utility.title}</span>
+                            </DropdownMenuSubTrigger>
+                            <DropdownMenuSubContent className="text-xs">
+                              {utility?.options?.map((option) => (
+                                <DropdownMenuItem key={option.title} className="flex items-start gap-2">
+                                  <SidebarMenuButton asChild>
+                                    <a href={option.url}>{option.title}</a>
+                                  </SidebarMenuButton>
+                                </DropdownMenuItem>
+                              ))}
+                            </DropdownMenuSubContent>
+                          </DropdownMenuSub>
+                        ):(
                           <DropdownMenuItem key={utility.title} className="flex items-start gap-2">
                             <SidebarMenuButton asChild>
                               <a href={utility.url}>
@@ -162,8 +190,8 @@ export function AppSidebar() {
                               </a>
                             </SidebarMenuButton>
                           </DropdownMenuItem>
-                      )
-                    ))} 
+                        )  
+                      ))} 
                   </DropdownMenuContent>
                 </DropdownMenu>
               </SidebarMenuItem>
