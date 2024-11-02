@@ -1,12 +1,12 @@
 'use client';
 
-import FormAccountSubPlan from '../components/form';
+import FormUserGroup from '../components/form';
 import { AlertOk } from "@/components/alert";
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { LoadingModal } from "@/components/loadingModal";
 
-export default function EditAccountSubPlan({ params }: { params: { id: string, subId: string } }) {
+export default function EditUserGroupPage({ params }: { params: { id: string } }) {
   const [initialData, setInitialData] = useState();
 
   const [loading, setLoading] = useState(true);
@@ -17,10 +17,10 @@ export default function EditAccountSubPlan({ params }: { params: { id: string, s
   const router = useRouter();
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchUserGroup = async () => {
       try {
-        const response = await fetch(`/api/accountSubPlan/${params.subId}`);
-        if (!response.ok) throw new Error('Erro ao buscar dados do sub plano');
+        const response = await fetch(`/api/userGroup/${params.id}`);
+        if (!response.ok) throw new Error('Erro ao buscar dados do grupo');
 
         const data = await response.json();
         setInitialData(data);
@@ -31,12 +31,12 @@ export default function EditAccountSubPlan({ params }: { params: { id: string, s
       }
     };
 
-    fetchData();
-  }, [params.subId]);
+    fetchUserGroup();
+  }, [params.id]);
 
   const handleSubmit = async (data: any) => {
     try {
-      const response = await fetch(`/api/accountSubPlan/${params.subId}`, {
+      const response = await fetch(`/api/userGroup/${params.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -50,14 +50,14 @@ export default function EditAccountSubPlan({ params }: { params: { id: string, s
       }
       
       setAlertTitle("Sucesso!");
-      setAlertMessage("Sub Plano editado com sucesso.");
+      setAlertMessage("Grupo de usuário editado com sucesso.");
       setAlertVisible(true);
 
       setTimeout(() => {
-        router.push(`/accountPlan/${params.id}/accountSubPlan`);
+        router.push('/userGroup');
       }, 1200);
     } catch (error) {
-      console.error('Erro ao editar o sub plano:', error);
+      console.error('Erro ao editar o grupo de usuário:', error);
     }
   };
 
@@ -65,8 +65,8 @@ export default function EditAccountSubPlan({ params }: { params: { id: string, s
     <>
       <LoadingModal isVisible={loading} />
       <div className="p-4">
-        <h1 className="text-2xl font-bold mb-4">Editar  Usuário</h1>
-        <FormAccountSubPlan initialData={initialData} onSubmit={handleSubmit} planId={ Number(params.id) } />
+        <h1 className="text-2xl font-bold mb-4">Editar Grupo de Usuário</h1>
+        <FormUserGroup initialData={initialData} onSubmit={handleSubmit} />
         
         <AlertOk 
             title={alertTitle} 

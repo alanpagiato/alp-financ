@@ -6,18 +6,18 @@ export async function GET(req: Request, props: { params: Promise<{ id: string }>
   const { id } = params;
 
   try {
-    const data = await prisma.userGroup.findUnique({
+    const data = await prisma.entity.findUnique({
       where: { id: Number(id) },
     });
 
     if (!data) {
-      return NextResponse.json({ error: 'Grupo de usuário não encontrado' }, { status: 404 });
+      return NextResponse.json({ error: 'Entidade não encontrada' }, { status: 404 });
     }
 
     return NextResponse.json(data);
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: 'Erro ao carregar os dados do grupo de usuário' }, { status: 500 });
+    return NextResponse.json({ error: 'Erro ao carregar os dados da entidade' }, { status: 500 });
   }
 }
 
@@ -29,20 +29,19 @@ export async function PUT(req: Request, props: { params: Promise<{ id: string }>
     const data = await req.json();
 
     if (!data.name) {
-      return NextResponse.json({ message: 'Nome do grupo é obrigatório' }, { status: 400 });
+      return NextResponse.json({ message: 'Nome da entidade é obrigatório' }, { status: 400 });
     }
 
-    const updatedData = await prisma.userGroup.update({
+    const updatedData = await prisma.entity.update({
       where: { id: Number(id) },
       data: {
         name: data.name,
-        isAdmin: data.isAdmin,
       },
     });
 
     return NextResponse.json(updatedData);
   } catch (error) {
-    console.error('Erro ao atualizar grupo de usuário.', error);
+    console.error('Erro ao atualizar entidade.', error);
     return NextResponse.json({ message: 'Erro ao atualizar os dados' }, { status: 500 });
   }
 }
@@ -52,18 +51,18 @@ export async function DELETE(request: Request, props: { params: Promise<{ id: st
   const { id } = params;
 
   try {
-    const deletedData = await prisma.userGroup.delete({
+    const deletedData = await prisma.entity.delete({
       where: {
         id: Number(id),
       },
     });
 
     if (!deletedData) {
-      return NextResponse.json({ message: 'Grupo de usuário não encontrado.' }, { status: 404 });
+      return NextResponse.json({ message: 'Entidade não encontrada.' }, { status: 404 });
     }
 
-    return NextResponse.json({ message: 'Grupo de usuário excluída com sucesso!' });
+    return NextResponse.json({ message: 'Entidade excluída com sucesso!' });
   } catch (error) {
-    return NextResponse.json({ message: 'Erro ao excluir o grupo de usuário.' }, { status: 500 });
+    return NextResponse.json({ message: 'Erro ao excluir a entidade.' }, { status: 500 });
   }
 }

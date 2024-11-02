@@ -20,28 +20,28 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-export type AccountPlan = {
+export type Entity = {
   id: number
-  description: string
+  name: string
 }
 
 interface ColumnsProps {
-  deleteAccountPlan: (id: number) => void;
+  deleteEntity: (id: number) => void;
 }
 
-export const columns = ({ deleteAccountPlan }: ColumnsProps): ColumnDef<AccountPlan>[] => {
+export const columns = ({ deleteEntity }: ColumnsProps): ColumnDef<Entity>[] => {
   const router = useRouter();
 
   return [
     {
-      accessorKey: "description",
-      header: "Descrição",
+      accessorKey: "name",
+      header: "Nome",
     },
     {
       id: "actions",
       enableHiding: false,
       cell: ({ row }) => {
-        const accountPlan = row.original
+        const entity = row.original
 
         return (
           <DropdownMenu>
@@ -56,22 +56,15 @@ export const columns = ({ deleteAccountPlan }: ColumnsProps): ColumnDef<AccountP
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => {
-                  router.push(`/accountPlan/${accountPlan.id}`);
+                  router.push(`/entity/${entity.id}`);
                 }}
               >
                 Editar
               </DropdownMenuItem>
               <DropdownMenuItem
-                onClick={() => deleteAccountPlan(accountPlan.id)}
+                onClick={() => deleteEntity(entity.id)}
               >
                 Excluir
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => {
-                  router.push(`/accountPlan/${accountPlan.id}/accountSubPlan`);
-                }}
-              >
-                Gerenciar Subplanos
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

@@ -13,25 +13,25 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id          String   @id @default(cuid())
-  username    String   @unique
-  password    String
-  userGroupId Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+model AccountPlan {
+  id               Int      @id @default(autoincrement())
+  description      String   @unique
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
-  group UserGroup @relation(name: "UserGroupToUser", fields: [userGroupId], references: [id])
+  accountSubPlans AccountSubPlan[] @relation("AccountPlanToAccountSubPlan")
 }
 
-model UserGroup {
-  id        Int      @id @default(autoincrement()) // ID numérico e auto-incremental
-  name      String   @unique
-  isAdmin   Boolean
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  users User[] @relation("UserGroupToUser")
+model AccountSubPlan {
+  id            Int      @id @default(autoincrement())
+  description   String   
+  accountPlanId Int
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  accountPlan AccountPlan @relation(name: "AccountPlanToAccountSubPlan", fields: [accountPlanId], references: [id])
+  
+  @@unique([accountPlanId, description])
 }
 
 model BankAccount {
@@ -58,24 +58,48 @@ model BankAccount {
   @@index([name])
 }
 
-model AccountPlan {
-  id               Int      @id @default(autoincrement())
-  description      String   @unique
-  
+model Entity {
+  id            Int      @id @default(autoincrement())
+  name          String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model MovementCode {
+  id            Int      @id @default(autoincrement())
+  description   String
+  nature        String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Parameter {
+  id                Int    @id @default(1)
+  uppercaseFields   Boolean
+  dateLock          DateTime
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([id])
+}
+
+model User {
+  id          String   @id @default(cuid())
+  username    String   @unique
+  password    String
+  userGroupId Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  group UserGroup @relation(name: "UserGroupToUser", fields: [userGroupId], references: [id])
+}
+
+model UserGroup {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  isAdmin   Boolean
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  accountSubPlans AccountSubPlan[] @relation("AccountPlanToAccountSubPlan")
-}
-
-model AccountSubPlan {
-  id            Int      @id @default(autoincrement()) // ID numérico e auto-incremental
-  description   String   
-  accountPlanId Int
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  
-  accountPlan AccountPlan @relation(name: "AccountPlanToAccountSubPlan", fields: [accountPlanId], references: [id])
-  
-  @@unique([accountPlanId, description])
+  users User[] @relation("UserGroupToUser")
 }
