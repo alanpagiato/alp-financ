@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { AlertOk } from "@/components/alert";
-import FormEntity from "../components/form";
+import FormMovementCode from "../components/form";
 import { useRouter } from "next/navigation";
 
 export default function Page() {
@@ -14,7 +14,7 @@ export default function Page() {
 
   const handleSubmit = async (data: any) => {
     try {
-      const response = await fetch('/api/entity', {
+      const response = await fetch('/api/movementCode', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -28,25 +28,25 @@ export default function Page() {
       }
 
       setAlertTitle("Sucesso!");
-      setAlertMessage("Entidade adicionada com sucesso.");
+      setAlertMessage("Código de lançamento adicionado com sucesso.");
       setAlertVisible(true);
 
       setTimeout(() => {
-        router.push('/entity');
+        router.push('/movementCode');
       }, 1000);
     } catch (error) {
-      console.error('Erro ao salvar a entidade:', error);
+      console.error('Erro ao salvar o código de lançamento:', error);
 
       setAlertTitle("Erro!");
-      setAlertMessage("Ocorreu um erro ao adicionar a entidade.");
+      setAlertMessage("Ocorreu um erro ao adicionar o código de lançamento.");
       setAlertVisible(true);
     }
   };
 
   return (
-    <div className="w-[300%] p-4">
-      <h1 className="text-2xl font-bold mb-4">Criar Nova Entidade</h1>
-      <FormEntity onSubmit={handleSubmit} />
+    <div className="md:w-[200%] p-4">
+      <h1 className="text-2xl font-bold mb-4">Criar Novo Código de Lançamento</h1>
+      <FormMovementCode onSubmit={handleSubmit} />
 
       <AlertOk 
           title={alertTitle} 

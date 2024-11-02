@@ -1,12 +1,12 @@
 'use client';
 
-import FormEntity from '../components/form';
+import FormMovementCode from '../components/form';
 import { AlertOk } from "@/components/alert";
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { LoadingModal } from "@/components/loadingModal";
 
-export default function EditEntityPage({ params }: { params: { id: string } }) {
+export default function EditMovementCodePage({ params }: { params: { id: string } }) {
   const [initialData, setInitialData] = useState();
 
   const [loading, setLoading] = useState(true);
@@ -17,10 +17,10 @@ export default function EditEntityPage({ params }: { params: { id: string } }) {
   const router = useRouter();
 
   useEffect(() => {
-    const fetchEntity = async () => {
+    const fetchMovementCode = async () => {
       try {
-        const response = await fetch(`/api/entity/${params.id}`);
-        if (!response.ok) throw new Error('Erro ao buscar dados da entidade');
+        const response = await fetch(`/api/movementCode/${params.id}`);
+        if (!response.ok) throw new Error('Erro ao buscar dados do código de lançamento');
 
         const data = await response.json();
         setInitialData(data);
@@ -31,12 +31,12 @@ export default function EditEntityPage({ params }: { params: { id: string } }) {
       }
     };
 
-    fetchEntity();
+    fetchMovementCode();
   }, [params.id]);
 
   const handleSubmit = async (data: any) => {
     try {
-      const response = await fetch(`/api/entity/${params.id}`, {
+      const response = await fetch(`/api/movementCode/${params.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -50,23 +50,23 @@ export default function EditEntityPage({ params }: { params: { id: string } }) {
       }
       
       setAlertTitle("Sucesso!");
-      setAlertMessage("Entidade editada com sucesso.");
+      setAlertMessage("Código de lançamento editado com sucesso.");
       setAlertVisible(true);
 
       setTimeout(() => {
-        router.push('/entity');
+        router.push('/movementCode');
       }, 1200);
     } catch (error) {
-      console.error('Erro ao editar a entidade:', error);
+      console.error('Erro ao editar o código de lançamento:', error);
     }
   };
 
   return (
     <>
       <LoadingModal isVisible={loading} />
-      <div className="w-[300%] p-4">
+      <div className="w-[150%] p-4">
         <h1 className="text-2xl font-bold mb-4">Editar Entidade</h1>
-        <FormEntity initialData={initialData} onSubmit={handleSubmit} />
+        <FormMovementCode initialData={initialData} onSubmit={handleSubmit} />
         
         <AlertOk 
             title={alertTitle} 

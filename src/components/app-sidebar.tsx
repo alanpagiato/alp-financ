@@ -7,6 +7,9 @@ import {
   Landmark, 
   BetweenHorizonalEnd,
   KeyRound,
+  GitPullRequestCreateArrow,
+  IdCard,
+  Users,
 } from "lucide-react"
 
 import {
@@ -50,6 +53,22 @@ const items = [
     ],
     icon: BetweenHorizonalEnd,
   },
+  {
+    title: "Códigos de Lançamento",
+    options: [
+      { title: "Inserir", url: "/movementCode/add" },
+      { title: "Pesquisar", url: "/movementCode" },
+    ],
+    icon: GitPullRequestCreateArrow,
+  },
+  {
+    title: "Entidades",
+    options: [
+      { title: "Inserir", url: "/entity/add" },
+      { title: "Pesquisar", url: "/entity" },
+    ],
+    icon: IdCard,
+  },
 ]
 
 const utilities = [
@@ -59,7 +78,7 @@ const utilities = [
       { title: "Usuários", url: "/user" },
       { title: "Grupos de Usuários", url: "/userGroup" },
     ],
-    icon: KeyRound,
+    icon: Users,
     requiresAdmin: true,
   },
   { 
