@@ -13,6 +13,25 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model AccountMovement {
+  id               Int      @id @default(autoincrement())
+  date             DateTime //@db.Timestamp (postgree)
+  documentNumber   String?
+  value            Float
+  finished         Boolean
+  observations     String   //@db.Text (postgree)
+  bankAccountId    Int
+  movementCodeId   Int
+  entityCode       Int
+  accountId        Int
+
+  bankAccount BankAccount @relation(name: "BankAccountToAccountMovement", fields: [bankAccountId], references: [id])
+  movementCode MovementCode @relation(name: "MovementCodeToAccountMovement", fields: [movementCodeId], references: [id])
+  entity Entity @relation(name: "EntityToAccountMovement", fields: [entityCode], references: [id])
+  
+  @@index([date])
+}
+
 model AccountPlan {
   id          Int      @id @default(autoincrement())
   description String   @unique
@@ -55,6 +74,8 @@ model BankAccount {
   createdAt          DateTime @default(now())
   updatedAt          DateTime @updatedAt
 
+  accountMovements AccountMovement[] @relation("BankAccountToAccountMovement")
+
   @@index([name])
 }
 
@@ -63,6 +84,8 @@ model Entity {
   name      String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  accountMovements AccountMovement[] @relation("EntityToAccountMovement")
 }
 
 model MovementCode {
@@ -71,6 +94,8 @@ model MovementCode {
   nature      String
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+
+  accountMovements AccountMovement[] @relation("MovementCodeToAccountMovement")
 }
 
 model Parameter {
@@ -84,7 +109,7 @@ model Parameter {
 }
 
 model User {
-  id          String   @id @default(cuid())
+  id          String   @id @default(cuid()) //colocar uuid no postgree
   username    String   @unique
   password    String
   userGroupId Int
