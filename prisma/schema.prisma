@@ -9,46 +9,50 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgres"
+  //provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
 model AccountMovement {
   id               Int      @id @default(autoincrement())
-  date             DateTime //@db.Timestamp (postgree)
+  dateMovement     DateTime @db.Timestamp
   documentNumber   String?
-  value            Float
+  valueMovement    Float
   finished         Boolean
-  observations     String   //@db.Text (postgree)
+  observations     String   @db.Text
   bankAccountId    Int
   movementCodeId   Int
-  entityCode       Int
-  accountId        Int
+  entityId         Int
+  accountId        Int?
 
-  bankAccount BankAccount @relation(name: "BankAccountToAccountMovement", fields: [bankAccountId], references: [id])
-  movementCode MovementCode @relation(name: "MovementCodeToAccountMovement", fields: [movementCodeId], references: [id])
-  entity Entity @relation(name: "EntityToAccountMovement", fields: [entityCode], references: [id])
+  createdAt   DateTime @db.Timestamp @default(now())
+  updatedAt   DateTime @db.Timestamp @updatedAt
+
+  bankAccount BankAccount @relation(fields: [bankAccountId], references: [id])
+  movementCode MovementCode @relation(fields: [movementCodeId], references: [id])
+  entity Entity @relation(fields: [entityId], references: [id])
   
-  @@index([date])
+  @@index([dateMovement])
 }
 
 model AccountPlan {
   id          Int      @id @default(autoincrement())
   description String   @unique
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @db.Timestamp @default(now())
+  updatedAt   DateTime @db.Timestamp @updatedAt
 
-  accountSubPlans AccountSubPlan[] @relation("AccountPlanToAccountSubPlan")
+  accountSubPlans AccountSubPlan[]
 }
 
 model AccountSubPlan {
   id            Int      @id @default(autoincrement())
   description   String
   accountPlanId Int
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  createdAt   DateTime @db.Timestamp @default(now())
+  updatedAt   DateTime @db.Timestamp @updatedAt
 
-  accountPlan AccountPlan @relation(name: "AccountPlanToAccountSubPlan", fields: [accountPlanId], references: [id])
+  accountPlan AccountPlan @relation(fields: [accountPlanId], references: [id])
 
   @@unique([accountPlanId, description])
 }
@@ -71,10 +75,10 @@ model BankAccount {
   cep                String?
   phones             String?
   contactPerson      String?
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
+  createdAt   DateTime @db.Timestamp @default(now())
+  updatedAt   DateTime @db.Timestamp @updatedAt
 
-  accountMovements AccountMovement[] @relation("BankAccountToAccountMovement")
+  accountMovements AccountMovement[]
 
   @@index([name])
 }
@@ -82,49 +86,49 @@ model BankAccount {
 model Entity {
   id        Int      @id @default(autoincrement())
   name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt   DateTime @db.Timestamp @default(now())
+  updatedAt   DateTime @db.Timestamp @updatedAt
 
-  accountMovements AccountMovement[] @relation("EntityToAccountMovement")
+  accountMovements AccountMovement[]
 }
 
 model MovementCode {
   id          Int      @id @default(autoincrement())
   description String
   nature      String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @db.Timestamp @default(now())
+  updatedAt   DateTime @db.Timestamp @updatedAt
 
-  accountMovements AccountMovement[] @relation("MovementCodeToAccountMovement")
+  accountMovements AccountMovement[]
 }
 
 model Parameter {
   id              Int      @id @default(1)
   uppercaseFields Boolean
   dateLock        DateTime
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  createdAt   DateTime @db.Timestamp @default(now())
+  updatedAt   DateTime @db.Timestamp @updatedAt
 
   @@unique([id])
 }
 
 model User {
-  id          String   @id @default(cuid()) //colocar uuid no postgree
+  id          String   @id @default(uuid())
   username    String   @unique
   password    String
   userGroupId Int
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @db.Timestamp @default(now())
+  updatedAt   DateTime @db.Timestamp @updatedAt
 
-  group UserGroup @relation(name: "UserGroupToUser", fields: [userGroupId], references: [id])
+  group UserGroup @relation(fields: [userGroupId], references: [id])
 }
 
 model UserGroup {
-  id        Int      @id @default(autoincrement())
-  name      String   @unique
-  isAdmin   Boolean
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  isAdmin     Boolean
+  createdAt   DateTime @db.Timestamp @default(now())
+  updatedAt   DateTime @db.Timestamp @updatedAt
 
-  users User[] @relation("UserGroupToUser")
+  users User[]
 }

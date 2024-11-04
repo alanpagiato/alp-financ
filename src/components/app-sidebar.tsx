@@ -69,6 +69,14 @@ const items = [
     ],
     icon: IdCard,
   },
+  {
+    title: "Movimentos Bancários",
+    options: [
+      { title: "Inserir", url: "/accountMovement/add" },
+      { title: "Pesquisar", url: "/accountMovement" },
+    ],
+    icon: IdCard,
+  },
 ]
 
 const utilities = [

@@ -15,12 +15,7 @@ export async function GET(req: Request, props: { params: Promise<{ id: string }>
       return NextResponse.json({ error: 'Movimento bancário não encontrado' }, { status: 404 });
     }
 
-    const responseData = {
-        ...data,
-        date: data.date ? formatUtcToString(data.date) : null,
-      };
-
-    return NextResponse.json(responseData);
+    return NextResponse.json(data);
   } catch (error) {
     console.error(error);
     return NextResponse.json({ error: 'Erro ao carregar os dados do movimento bancário' }, { status: 500 });
@@ -34,23 +29,21 @@ export async function PUT(req: Request, props: { params: Promise<{ id: string }>
   try {
     const data = await req.json();
 
-    if (!data.date) {
+    if (!data.dateMovement) {
         return NextResponse.json({ message: 'Data do movimento é obrigatória' }, { status: 400 });
     }
-    const dateUtc = formatStringToUtc(data.date);
-
+    
     const updatedData = await prisma.accountMovement.update({
       where: { id: Number(id) },
       data: {
-        date: dateUtc,
+        dateMovement: data.dateMovement,
         documentNumber: data.documentNumber,
-        value: data.value,
+        valueMovement: data.valueMovement,
         finished: data.finished,
         observations: data.observations,
         bankAccountId: data.bankAccountId,
         movementCodeId: data.movementCodeId,
-        entityCode: data.entityCode,
-        accountId: data.accountId,
+        entityId: data.entityId,
       },
     });
 
