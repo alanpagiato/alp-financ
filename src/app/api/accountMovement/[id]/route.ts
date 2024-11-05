@@ -43,7 +43,6 @@ export async function PUT(req: Request, props: { params: Promise<{ id: string }>
         observations: data.observations,
         bankAccountId: data.bankAccountId,
         movementCodeId: data.movementCodeId,
-        entityId: data.entityId,
       },
     });
 

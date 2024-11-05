@@ -10,6 +10,8 @@ import { LoadingModal } from "@/components/loadingModal";
 
 export default function Page() {
   const [data, setData] = useState<AccountMovement[]>([]);
+  const [bankAccountMap, setBankAccountMap] = useState<Record<number, string>>({});
+  const [movementCodeMap, setMovementCodeMap] = useState<Record<number, { description: string; nature: string }>>({});
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,9 +23,25 @@ export default function Page() {
   const [confirmId, setConfirmId] = useState<number | null>(null);
   
   useEffect(() => {
-    fetchData()
-      .then((data) => {
-        setData(data);
+    Promise.all([fetchData(), fetchBankAccounts(), fetchMovementCodes()])
+      .then(([movementAccounts, bankAccounts, movementCodes]) => {
+        setData(movementAccounts);
+
+        const bankAccountMapping: Record<number, string> = {};
+        bankAccounts.forEach(bankAccount => {
+          bankAccountMapping[bankAccount.id] = bankAccount.name;
+        });
+        setBankAccountMap(bankAccountMapping);
+        
+        const movementCodeMapping: Record<number, { description: string; nature: string }> = {};
+        movementCodes.forEach(movementCode => {
+          movementCodeMapping[movementCode.id] = {
+            description: movementCode.description,
+            nature: movementCode.nature,
+          };
+        });
+        setMovementCodeMap(movementCodeMapping);
+
         setLoading(false);
       })
       .catch((err) => {
@@ -36,6 +54,22 @@ export default function Page() {
     const response = await fetch('/api/accountMovement');
     if (!response.ok) {
       throw new Error('Falha ao buscar os dados');
+    }
+    return response.json();
+  }
+
+  async function fetchBankAccounts(): Promise<{ id: number; name: string }[]> {
+    const response = await fetch('/api/bankAccount');
+    if (!response.ok) {
+      throw new Error('Falha ao buscar os grupos');
+    }
+    return response.json();
+  }
+
+  async function fetchMovementCodes(): Promise<{ id: number; description: string; nature: string }[]> {
+    const response = await fetch('/api/movementCode');
+    if (!response.ok) {
+      throw new Error('Falha ao buscar os códigos de lançamento');
     }
     return response.json();
   }
@@ -83,9 +117,9 @@ export default function Page() {
     <>
       <LoadingModal isVisible={loading} />
       <div className="h-full w-full flex flex-col space-y-1 p-5 overflow-y-auto">
-          <h2 className="text-2xl font-bold tracking-tight">Movimentos Bancários</h2>
+          <h2 className="text-2xl font-bold mb-4 tracking-tight">Movimentos Bancários</h2>
           <DataTable
-            columns={columns({ deleteAccountMovement: handleDeleteRequest })} 
+            columns={columns({ deleteAccountMovement: handleDeleteRequest, bankAccountMap, movementCodeMap })} 
             data={data} 
           />
           

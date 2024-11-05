@@ -23,17 +23,29 @@ model AccountMovement {
   observations     String   @db.Text
   bankAccountId    Int
   movementCodeId   Int
-  entityId         Int
-  accountId        Int?
-
   createdAt   DateTime @db.Timestamp @default(now())
   updatedAt   DateTime @db.Timestamp @updatedAt
 
+  accountMovementSplits AccountMovementSplit[]
   bankAccount BankAccount @relation(fields: [bankAccountId], references: [id])
   movementCode MovementCode @relation(fields: [movementCodeId], references: [id])
-  entity Entity @relation(fields: [entityId], references: [id])
+  
   
   @@index([dateMovement])
+}
+
+model AccountMovementSplit {
+  id                  Int      @id @default(autoincrement())
+  accountMovementId   Int
+  entityId            Int
+  accountSubPlanId    Int
+  valueSplit          Float
+  createdAt           DateTime @db.Timestamp @default(now())
+  updatedAt           DateTime @db.Timestamp @updatedAt
+
+  accountMovement AccountMovement @relation(fields: [accountMovementId], references: [id])
+  entity Entity @relation(fields: [entityId], references: [id])
+  accountSubPlan AccountSubPlan @relation(fields: [accountSubPlanId], references: [id])
 }
 
 model AccountPlan {
@@ -53,6 +65,8 @@ model AccountSubPlan {
   updatedAt   DateTime @db.Timestamp @updatedAt
 
   accountPlan AccountPlan @relation(fields: [accountPlanId], references: [id])
+
+  accountMovementSplits AccountMovementSplit[]
 
   @@unique([accountPlanId, description])
 }
@@ -89,7 +103,7 @@ model Entity {
   createdAt   DateTime @db.Timestamp @default(now())
   updatedAt   DateTime @db.Timestamp @updatedAt
 
-  accountMovements AccountMovement[]
+  accountMovementsSplits AccountMovementSplit[]
 }
 
 model MovementCode {
@@ -120,7 +134,7 @@ model User {
   createdAt   DateTime @db.Timestamp @default(now())
   updatedAt   DateTime @db.Timestamp @updatedAt
 
-  group UserGroup @relation(fields: [userGroupId], references: [id])
+  userGroup UserGroup @relation(fields: [userGroupId], references: [id])
 }
 
 model UserGroup {

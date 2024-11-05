@@ -33,26 +33,99 @@ export type AccountMovement = {
 }
 
 import { formatUtcToString } from "@/lib/dateConvert"
+import { ArrowUpDown } from "lucide-react"
 
 interface ColumnsProps {
   deleteAccountMovement: (id: number) => void;
+  bankAccountMap: Record<number, string>;
+  movementCodeMap: Record<number, { description: string; nature: string }>;
 }
 
-export const columns = ({ deleteAccountMovement }: ColumnsProps): ColumnDef<AccountMovement>[] => {
+export const columns = ({ deleteAccountMovement, bankAccountMap, movementCodeMap }: ColumnsProps): ColumnDef<AccountMovement>[] => {
   const router = useRouter();
 
   return [
     {
+      accessorKey: "id",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            ID
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        )
+      },
+    },
+    {
       accessorKey: "dateMovement",
-      header: "Data",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Data
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        )
+      },
       cell: ({ getValue }) => {
         const dateValue = new Date(getValue() as string);
         return formatUtcToString(dateValue);
       },
     },
     {
-        accessorKey: "documentNumber",
-        header: "N Documento",
+      accessorKey: "bankAccountId",
+      header: "Conta",
+      cell: ({ row }) => {
+        const bankAccountId = row.original.bankAccountId;
+        const bankAccountName = bankAccountMap[bankAccountId] || "Grupo Desconhecido";
+        return <span>{bankAccountName}</span>;
+      }
+    },
+    {
+      accessorKey: "movementCodeId",
+      header: "Código de Lançamento",
+      cell: ({ row }) => {
+        const movementCodeId = row.original.movementCodeId;
+        const movementCode = movementCodeMap[movementCodeId] || "Grupo Desconhecido";
+        return <span>{movementCode.description}</span>;
+      }
+    },
+    {
+      accessorKey: "valueMovement",
+      header: ({ column }) => {
+        return (
+          <Button
+            variant="ghost"
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          >
+            Valor
+            <ArrowUpDown className="ml-2 h-4 w-4" />
+          </Button>
+        )
+      },
+      cell: ({ row }) => {
+        const value = row.getValue("valueMovement");
+        const movementCodeId = row.original.movementCodeId;
+        const nature = movementCodeMap[movementCodeId]?.nature;
+
+        const color = nature === "Debito" ? "text-red-500" : "text-blue-500";
+
+        return (
+          <span className={color}>
+            {new Intl.NumberFormat("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }).format(Number(value))}
+          </span>
+        );
+      },
     },
     {
       id: "actions",

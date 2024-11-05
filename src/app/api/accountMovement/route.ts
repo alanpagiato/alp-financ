@@ -4,7 +4,11 @@ import { formatUtcToString, formatStringToUtc } from '@/lib/dateConvert';
 
 export async function GET() {
     try {
-      const result = await prisma.accountMovement.findMany();
+      const result = await prisma.accountMovement.findMany({
+        orderBy: {
+          id: 'asc',
+        },
+      });
       
       return NextResponse.json(result);
     } catch (error) {
@@ -30,7 +34,6 @@ try {
         observations: data.observations,
         bankAccountId: data.bankAccountId,
         movementCodeId: data.movementCodeId,
-        entityId: data.entityId,
       },
     });
 
