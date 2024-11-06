@@ -26,7 +26,7 @@ export async function POST(req: Request) {
   try {
     const user = await prisma.user.findUnique({
       where: { username },
-      include: { group: true }
+      include: { userGroup: true }
     });
 
     if (!user) {
@@ -42,9 +42,9 @@ export async function POST(req: Request) {
       { 
         id: user.id, 
         username: user.username,
-        groupId: user.group?.id,
-        groupName: user.group?.name,
-        isAdmin: user.group?.isAdmin,
+        groupId: user.userGroup?.id,
+        groupName: user.userGroup?.name,
+        isAdmin: user.userGroup?.isAdmin,
       },
       process.env.JWT_SECRET as string,
       { expiresIn: '12h' }

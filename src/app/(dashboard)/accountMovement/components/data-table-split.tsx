@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react";
 import {
   Table,
   TableBody,
@@ -13,10 +12,10 @@ import {
 } from "@/components/ui/table"
 
 import { Button } from "@/components/ui/button";
-import { EditSplitModal } from "./edit-split-modal";
 
 interface SplitData {
   id: number;
+  accountMovementId?: number;
   entity?: {
     name: string;
   };
@@ -28,27 +27,12 @@ interface SplitData {
 
 interface DataTableSplitProps {
   splitData: SplitData[];
-  onDelete: (id: number) => void;
-  onUpdate: (id: number, updatedData: Partial<SplitData>) => void;
 }
 
-export function DataTableSplit({ splitData, onDelete, onUpdate }: DataTableSplitProps) {
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedSplit, setSelectedSplit] = useState<SplitData | null>(null);
+export function DataTableSplit({ splitData }: DataTableSplitProps) {
+  
 
   const totalValueSplit = splitData.reduce((total, split) => total + split.valueSplit, 0);
-
-  const handleEditClick = (split: SplitData) => {
-    setSelectedSplit(split); // Define os dados do item selecionado
-    setIsEditModalOpen(true); // Abre o modal de edição
-  };
-
-  const handleSave = (updatedData: any) => {
-    if (selectedSplit) {
-      onUpdate(selectedSplit.id, updatedData); // Atualiza os dados no componente pai
-      setIsEditModalOpen(false); // Fecha o modal
-    }
-  };
 
   return (
     <div className="bg-blue-50 p-6 rounded-lg shadow-md">
@@ -71,10 +55,10 @@ export function DataTableSplit({ splitData, onDelete, onUpdate }: DataTableSplit
               {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(split.valueSplit)}
             </TableCell>
             <TableCell>
-              <Button variant="outline" size="sm" onClick={() => handleEditClick(split)}>
+              <Button variant="outline" size="sm" >
                   Editar
               </Button>
-              <Button variant="destructive" size="sm" onClick={() => onDelete(split.id)} className="ml-2">
+              <Button variant="destructive" size="sm" className="ml-2">
                 Excluir
               </Button>
             </TableCell>

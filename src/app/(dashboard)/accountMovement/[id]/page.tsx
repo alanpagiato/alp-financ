@@ -13,6 +13,7 @@ export default function EditAccountMovementPage({ params }: { params: { id: stri
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertTitle, setAlertTitle] = useState('');
   const [alertMessage, setAlertMessage] = useState('');
+  const [alertType, setAlertType] = useState<'ok' | 'error'>('ok');
 
   const router = useRouter();
 
@@ -37,6 +38,7 @@ export default function EditAccountMovementPage({ params }: { params: { id: stri
 
   const handleSubmit = async (data: any) => {
     try {
+      setLoading(true)
       const response = await fetch(`/api/accountMovement/${params.id}`, {
         method: 'PUT',
         headers: {
@@ -50,32 +52,50 @@ export default function EditAccountMovementPage({ params }: { params: { id: stri
         throw new Error(resData.message || 'Erro ao salvar os dados');
       }
       
-      setAlertTitle("Sucesso!");
-      setAlertMessage("Movimento bancário editado com sucesso.");
-      setAlertVisible(true);
+      setLoading(false)
+      handleShowSuccessAlert("Movimento bancário editado com sucesso.");
 
-      setTimeout(() => {
-        router.push('/accountMovement');
-      }, 1200);
     } catch (error) {
       console.error('Erro ao editar o movimento bancário:', error);
+      handleShowErrorAlert('Ocorreu um erro ao editar o movimento bancário. Consulte o administrador do sistema.');
+      setLoading(false)
+    } 
+  };
+  
+  const handleShowSuccessAlert = (message: string) => {
+    setAlertTitle("Sucesso!");
+    setAlertMessage(message);
+    setAlertType("ok");
+    setAlertVisible(true);
+  };
+
+  const handleShowErrorAlert = (message: string) => {
+    setAlertTitle("Erro");
+    setAlertMessage(message);
+    setAlertType("error");
+    setAlertVisible(true);
+  };
+
+  const handleAlertClose = () => {
+    setAlertVisible(false);
+    if (alertType === "ok") {
+      router.push('/accountMovement');
     }
   };
 
   return (
     <>
       <LoadingModal isVisible={loading} />
+      <AlertOk 
+        title={alertTitle} 
+        message={alertMessage} 
+        isVisible={alertVisible}
+        type={alertType}
+        onClose={handleAlertClose}
+      />
       <div className="p-4">
         <h1 className="text-2xl font-bold mb-4">Editar Conta Bancária</h1>
         <FormAccountMovement initialData={initialData} onSubmit={handleSubmit} />
-        
-        <AlertOk 
-            title={alertTitle} 
-            message={alertMessage} 
-            isVisible={alertVisible}
-            onClose={() => setAlertVisible(false)} 
-          />
-
       </div>
     </>  
   );
