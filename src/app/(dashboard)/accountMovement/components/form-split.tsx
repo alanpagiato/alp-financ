@@ -9,17 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { NumericFormat } from 'react-number-format';
 
-interface SplitData {
-    id: number;
-    accountMovementId?: number;
-    entity?: {
-      name: string;
-    };
-    accountSubPlan?: {
-      description: string;
-    };
-    valueSplit: number;
-}
+import { AccountMovementSplit } from "@/types/accountMovement";
 
 const formSchema = z.object({
   accountMovementid: z.number().optional(),
@@ -31,7 +21,7 @@ const formSchema = z.object({
 type FormSplitData = z.infer<typeof formSchema>;
 
 interface FormSplitProps {
-  onSuccess: (newSplitData: SplitData) => void;
+  onSuccess: (newSplitData: AccountMovementSplit) => void;
   accountMovementId?: number;
   initialData?: Partial<{
     id: number; 
@@ -96,42 +86,73 @@ export function FormSplit({ onSuccess, accountMovementId, initialData }: FormSpl
         });
       }
   }, [initialData, form]);
+  
+  let tempIdCounter = 1;
 
   const onSubmit = async (data: FormSplitData) => {
     try {
+      const tempId = tempIdCounter++;
+      const createdData = { ...data };
+      const entityName = entities.find((entity) => entity.id === data.entityId)?.name || '';
+      const accountSubPlanDescription = accountSubPlans.find((plan) => plan.id === data.accountSubPlanId)?.description || '';
+
+      const newSplitData = {
+        ...createdData,
+        id: !accountMovementId && tempId,
+        entity: { name: entityName },
+        accountSubPlan: { description: accountSubPlanDescription },
+      };
       
+      console.log('new split', newSplitData)
+      console.log('id mov', accountMovementId)
+
       if (accountMovementId) {
         const payload = { ...data, accountMovementId };
         const method = initialData?.id ? 'PUT' : 'POST';
-        const endpoint = initialData?.id 
-                          ? `/api/accountMovementSplit/${initialData.id}` 
-                          : '/api/accountMovementSplit';
-
+        const endpoint = initialData?.id
+          ? `/api/accountMovementSplit/${initialData.id}`
+          : '/api/accountMovementSplit';
+  
         const response = await fetch(endpoint, {
-            method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload),
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
         });
-        
+  
+        console.log('response status', response.status);
+  
+        const responseText = await response.text();
+  
         if (response.ok) {
-            const createdData = await response.json();
-            const entityName = entities.find((entity) => entity.id === data.entityId)?.name || '';
-            const accountSubPlanDescription = accountSubPlans.find((plan) => plan.id === data.accountSubPlanId)?.description || '';
+          const responseData = JSON.parse(responseText);
 
-            const newSplitData = {
-                ...createdData,
-                entity: { name: entityName },
-                accountSubPlan: { description: accountSubPlanDescription },
-            };
-            onSuccess(newSplitData); 
+          const newSplitDataWithId = {
+            ...newSplitData,
+            id: responseData.id,
+          };
+
+          onSuccess(newSplitDataWithId);
+        } else if (response.status === 400) {
+          let errorData;
+          try {
+            errorData = JSON.parse(responseText);
+          } catch (jsonError) {
+            console.error("Erro ao processar a resposta JSON:", jsonError);
+            errorData = { message: "Erro desconhecido ao processar a resposta." };
+          }
+          form.setError("accountSubPlanId", { message: errorData.message });
+          form.setError("entityId", { message: errorData.message });
         } else {
-            console.error("Erro ao salvar os dados");
+          console.error("Erro ao salvar os dados: status", response.status);
         }
+      } else {
+        onSuccess(newSplitData);
       }
     } catch (error) {
       console.error("Erro ao salvar os dados:", error);
     }
   };
+  
 
   return (
     <Form {...form}>

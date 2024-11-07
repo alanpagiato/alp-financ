@@ -7,30 +7,28 @@ export async function PUT(req: Request, props: { params: Promise<{ id: string }>
   
     try {
       const data = await req.json();
-  
-      if (!data.accountMovementId) {
-        return NextResponse.json({ message: 'Referência do movimento bancário é obrigatória' }, { status: 400 });
+      const { accountMovementId, entityId, accountSubPlanId, valueSplit } = data;
+      
+      const exists = await prisma.accountMovementSplit.findUnique({
+        where: {
+          movementId_entityId_subPlanId: {accountMovementId, entityId, accountSubPlanId },
+        },
+      });
+
+      if (exists) {
+        return NextResponse.json({ message: 'DUPLICIDADE: Já existe um registro com essa entidade e sub plano.' }, { status: 400 });
       }
-      if (!data.entityId) {
-        return NextResponse.json({ message: 'Entidade é obrigatória' }, { status: 400 });
-      }
-      if (!data.accountSubPlanId) {
-        return NextResponse.json({ message: 'Sub plano de contas é obrigatório' }, { status: 400 });
-      }
-      if (!data.valueSplit) {
-        return NextResponse.json({ message: 'Valor é obrigatório' }, { status: 400 });
-      }
-  
+
       const updatedData = await prisma.accountMovementSplit.update({
         where: { id: Number(id) },
         data: {
-          accountMovementId: data.accountMovementId,
-          entityId: data.entityId,
-          accountSubPlanId: data.accountSubPlanId,
-          valueSplit: data.valueSplit
+          accountMovementId: accountMovementId,
+          entityId: entityId,
+          accountSubPlanId: accountSubPlanId,
+          valueSplit: valueSplit
         },
       });
-  
+
       return NextResponse.json(updatedData);
     } catch (error) {
       console.error('Erro ao atualizar divisão de movimento bancário:', error);

@@ -44,6 +44,8 @@ model AccountMovementSplit {
   accountMovement AccountMovement @relation(fields: [accountMovementId], references: [id])
   entity          Entity          @relation(fields: [entityId], references: [id])
   accountSubPlan  AccountSubPlan  @relation(fields: [accountSubPlanId], references: [id])
+
+  @@unique([accountMovementId, entityId, accountSubPlanId], name: "movementId_entityId_subPlanId")
 }
 
 model AccountPlan {

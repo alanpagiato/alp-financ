@@ -13,21 +13,11 @@ import {
 
 import { Button } from "@/components/ui/button";
 
-interface SplitData {
-  id: number;
-  accountMovementId?: number;
-  entity?: {
-    name: string;
-  };
-  accountSubPlan?: {
-    description: string;
-  };
-  valueSplit: number;
-}
+import { AccountMovementSplit } from "@/types/accountMovement";
 
 interface DataTableSplitProps {
-  splitData: SplitData[];
-  onEditSplit: (split: SplitData) => void;
+  splitData: AccountMovementSplit[];
+  onEditSplit: (split: AccountMovementSplit) => void;
   onDeleteSplit: (splitId: number) => void;
 }
 

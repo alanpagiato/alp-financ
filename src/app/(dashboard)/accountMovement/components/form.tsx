@@ -23,17 +23,7 @@ import { AlertOk } from '@/components/alert';
 import { ModalForm } from '@/components/modal-form';
 import { FormSplit } from './form-split';
 
-interface SplitData {
-  id: number;
-  accountMovementId?: number;
-  entity?: {
-    name: string;
-  };
-  accountSubPlan?: {
-    description: string;
-  };
-  valueSplit: number;
-}
+import { AccountMovementSplit } from "@/types/accountMovement";
 
 const formSchema = z.object({
   dateMovement: z
@@ -76,9 +66,9 @@ const FormAccountMovement = ({ initialData, onSubmit }: ContaFormProps) => {
   const [movementCodes, setMovementCodes] = useState<{ id: number; description: string }[]>([]);
   const [openPop, setOpenPop] = useState(false);
   const [localValue, setLocalValue] = useState('R$ ,00');
-  const [splitData, setSplitData] = useState<SplitData[]>([]);
+  const [splitData, setSplitData] = useState<AccountMovementSplit[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
-  const [editSplit, setEditSplit] = useState<SplitData | null>(null);
+  const [editSplit, setEditSplit] = useState<AccountMovementSplit | null>(null);
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -168,12 +158,12 @@ const FormAccountMovement = ({ initialData, onSubmit }: ContaFormProps) => {
     setModalVisible(true);
   };
 
-  const handleEditSplit = (split: SplitData) => {
+  const handleEditSplit = (split: AccountMovementSplit) => {
     setEditSplit(split);
     setModalVisible(true);
   };
   
-  const handleCloseModal = (newSplitData?: SplitData) => {
+  const handleCloseModal = (newSplitData?: AccountMovementSplit) => {
     setModalVisible(false);
     if (newSplitData?.id) {
       setSplitData((prevData) => {
