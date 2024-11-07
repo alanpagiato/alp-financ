@@ -78,7 +78,8 @@ const FormAccountMovement = ({ initialData, onSubmit }: ContaFormProps) => {
   const [localValue, setLocalValue] = useState('R$ ,00');
   const [splitData, setSplitData] = useState<SplitData[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
-    
+  const [editSplit, setEditSplit] = useState<SplitData | null>(null);
+
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: initialData || {
@@ -163,13 +164,42 @@ const FormAccountMovement = ({ initialData, onSubmit }: ContaFormProps) => {
   };
 
   const handleOpenModal = () => {
+    setEditSplit(null);
+    setModalVisible(true);
+  };
+
+  const handleEditSplit = (split: SplitData) => {
+    setEditSplit(split);
     setModalVisible(true);
   };
   
   const handleCloseModal = (newSplitData?: SplitData) => {
     setModalVisible(false);
-    if (newSplitData) {
-      setSplitData((prevData) => [...prevData, newSplitData]);
+    if (newSplitData?.id) {
+      setSplitData((prevData) => {
+        if (editSplit) {
+          return prevData.map((data) => (data.id === editSplit.id ? newSplitData : data));
+        }
+        return [...prevData, newSplitData];
+      });
+    }
+    setEditSplit(null); 
+  };
+
+  const handleDeleteSplit = async(id: number) => {
+    try {
+      const response = await fetch(`/api/accountMovementSplit/${id}`, {
+        method: 'DELETE',
+      });
+  
+      if (!response.ok) {
+        throw new Error('Erro ao excluir divisão do movimento bancário');
+      }
+  
+      setSplitData((prevData) => prevData.filter(accountMovementSplit => accountMovementSplit.id !== id));
+    } catch (error) {
+      console.error('Erro ao excluir a divisão do movimento bancário:', error);
+      alert('Erro ao excluir a divisão do movimento bancário');
     }
   };
   
@@ -184,11 +214,12 @@ const FormAccountMovement = ({ initialData, onSubmit }: ContaFormProps) => {
         onClose={() => setAlertVisible(false)} 
       />
       <ModalForm
-        title="Editar Informações"
+        title={editSplit ? "Editar Informações" : "Nova Divisão Movimento"}
         isVisible={modalVisible}
         onClose={handleCloseModal}
       >
         <FormSplit 
+          {...(editSplit ? { initialData: editSplit } : {})}
           onSuccess={(newSplitData) => handleCloseModal(newSplitData)} 
           accountMovementId={initialData?.id} 
         />
@@ -384,6 +415,8 @@ const FormAccountMovement = ({ initialData, onSubmit }: ContaFormProps) => {
         </Button>
         <DataTableSplit 
           splitData = { splitData }
+          onEditSplit={handleEditSplit}
+          onDeleteSplit={handleDeleteSplit}
         />
       </div>
     </>

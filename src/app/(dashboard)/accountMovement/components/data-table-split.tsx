@@ -27,9 +27,11 @@ interface SplitData {
 
 interface DataTableSplitProps {
   splitData: SplitData[];
+  onEditSplit: (split: SplitData) => void;
+  onDeleteSplit: (splitId: number) => void;
 }
 
-export function DataTableSplit({ splitData }: DataTableSplitProps) {
+export function DataTableSplit({ splitData, onEditSplit, onDeleteSplit }: DataTableSplitProps) {
   
 
   const totalValueSplit = splitData.reduce((total, split) => total + split.valueSplit, 0);
@@ -55,10 +57,14 @@ export function DataTableSplit({ splitData }: DataTableSplitProps) {
               {new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(split.valueSplit)}
             </TableCell>
             <TableCell>
-              <Button variant="outline" size="sm" >
+              <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => onEditSplit(split)}
+                >
                   Editar
-              </Button>
-              <Button variant="destructive" size="sm" className="ml-2">
+                </Button>
+              <Button variant="destructive" size="sm" className="ml-2"  onClick={() => onDeleteSplit(split.id)}>
                 Excluir
               </Button>
             </TableCell>

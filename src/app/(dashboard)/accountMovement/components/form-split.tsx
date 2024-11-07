@@ -6,7 +6,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from '@/components/ui/select';
 import { Form, FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/components/ui/form';
 import { NumericFormat } from 'react-number-format';
 
@@ -34,12 +33,13 @@ type FormSplitData = z.infer<typeof formSchema>;
 interface FormSplitProps {
   onSuccess: (newSplitData: SplitData) => void;
   accountMovementId?: number;
-  initialData?: {
-    accountMovementid: number;
+  initialData?: Partial<{
+    id: number; 
+    accountMovementId: number;
     entityId: number;
     accountSubPlanId: number;
     valueSplit: number;
-  };
+  }>;
 }
 
 export function FormSplit({ onSuccess, accountMovementId, initialData }: FormSplitProps) {
@@ -102,11 +102,17 @@ export function FormSplit({ onSuccess, accountMovementId, initialData }: FormSpl
       
       if (accountMovementId) {
         const payload = { ...data, accountMovementId };
-        const response = await fetch('/api/accountMovementSplit', {
-            method: 'POST',
+        const method = initialData?.id ? 'PUT' : 'POST';
+        const endpoint = initialData?.id 
+                          ? `/api/accountMovementSplit/${initialData.id}` 
+                          : '/api/accountMovementSplit';
+
+        const response = await fetch(endpoint, {
+            method,
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
         });
+        
         if (response.ok) {
             const createdData = await response.json();
             const entityName = entities.find((entity) => entity.id === data.entityId)?.name || '';
