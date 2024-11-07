@@ -75,7 +75,7 @@ const FormAccountMovement = ({ initialData, onSubmit }: ContaFormProps) => {
   const [bankAccounts, setBankAccounts] = useState<{ id: number; name: string }[]>([]);
   const [movementCodes, setMovementCodes] = useState<{ id: number; description: string }[]>([]);
   const [openPop, setOpenPop] = useState(false);
-  const [localValue, setLocalValue] = useState('R$ 0,00');
+  const [localValue, setLocalValue] = useState('R$ ,00');
   const [splitData, setSplitData] = useState<SplitData[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
     

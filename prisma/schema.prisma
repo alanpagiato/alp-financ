@@ -10,49 +10,47 @@ generator client {
 
 datasource db {
   provider = "postgres"
-  //provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
 model AccountMovement {
-  id               Int      @id @default(autoincrement())
-  dateMovement     DateTime @db.Timestamp
-  documentNumber   String?
-  valueMovement    Float
-  finished         Boolean
-  observations     String   @db.Text
-  bankAccountId    Int
-  movementCodeId   Int
-  createdAt   DateTime @db.Timestamp @default(now())
-  updatedAt   DateTime @db.Timestamp @updatedAt
+  id             Int      @id @default(autoincrement())
+  dateMovement   DateTime @db.Timestamp
+  documentNumber String?
+  valueMovement  Float
+  finished       Boolean
+  observations   String   @db.Text
+  bankAccountId  Int
+  movementCodeId Int
+  createdAt      DateTime @default(now()) @db.Timestamp
+  updatedAt      DateTime @updatedAt @db.Timestamp
 
   accountMovementSplits AccountMovementSplit[]
-  bankAccount BankAccount @relation(fields: [bankAccountId], references: [id])
-  movementCode MovementCode @relation(fields: [movementCodeId], references: [id])
-  
-  
+  bankAccount           BankAccount            @relation(fields: [bankAccountId], references: [id])
+  movementCode          MovementCode           @relation(fields: [movementCodeId], references: [id])
+
   @@index([dateMovement])
 }
 
 model AccountMovementSplit {
-  id                  Int      @id @default(autoincrement())
-  accountMovementId   Int
-  entityId            Int
-  accountSubPlanId    Int
-  valueSplit          Float
-  createdAt           DateTime @db.Timestamp @default(now())
-  updatedAt           DateTime @db.Timestamp @updatedAt
+  id                Int      @id @default(autoincrement())
+  accountMovementId Int
+  entityId          Int
+  accountSubPlanId  Int
+  valueSplit        Float
+  createdAt         DateTime @default(now()) @db.Timestamp
+  updatedAt         DateTime @updatedAt @db.Timestamp
 
   accountMovement AccountMovement @relation(fields: [accountMovementId], references: [id])
-  entity Entity @relation(fields: [entityId], references: [id])
-  accountSubPlan AccountSubPlan @relation(fields: [accountSubPlanId], references: [id])
+  entity          Entity          @relation(fields: [entityId], references: [id])
+  accountSubPlan  AccountSubPlan  @relation(fields: [accountSubPlanId], references: [id])
 }
 
 model AccountPlan {
   id          Int      @id @default(autoincrement())
   description String   @unique
-  createdAt   DateTime @db.Timestamp @default(now())
-  updatedAt   DateTime @db.Timestamp @updatedAt
+  createdAt   DateTime @default(now()) @db.Timestamp
+  updatedAt   DateTime @updatedAt @db.Timestamp
 
   accountSubPlans AccountSubPlan[]
 }
@@ -61,8 +59,8 @@ model AccountSubPlan {
   id            Int      @id @default(autoincrement())
   description   String
   accountPlanId Int
-  createdAt   DateTime @db.Timestamp @default(now())
-  updatedAt   DateTime @db.Timestamp @updatedAt
+  createdAt     DateTime @default(now()) @db.Timestamp
+  updatedAt     DateTime @updatedAt @db.Timestamp
 
   accountPlan AccountPlan @relation(fields: [accountPlanId], references: [id])
 
@@ -89,8 +87,8 @@ model BankAccount {
   cep                String?
   phones             String?
   contactPerson      String?
-  createdAt   DateTime @db.Timestamp @default(now())
-  updatedAt   DateTime @db.Timestamp @updatedAt
+  createdAt          DateTime @default(now()) @db.Timestamp
+  updatedAt          DateTime @updatedAt @db.Timestamp
 
   accountMovements AccountMovement[]
 
@@ -100,8 +98,8 @@ model BankAccount {
 model Entity {
   id        Int      @id @default(autoincrement())
   name      String
-  createdAt   DateTime @db.Timestamp @default(now())
-  updatedAt   DateTime @db.Timestamp @updatedAt
+  createdAt DateTime @default(now()) @db.Timestamp
+  updatedAt DateTime @updatedAt @db.Timestamp
 
   accountMovementsSplits AccountMovementSplit[]
 }
@@ -110,8 +108,8 @@ model MovementCode {
   id          Int      @id @default(autoincrement())
   description String
   nature      String
-  createdAt   DateTime @db.Timestamp @default(now())
-  updatedAt   DateTime @db.Timestamp @updatedAt
+  createdAt   DateTime @default(now()) @db.Timestamp
+  updatedAt   DateTime @updatedAt @db.Timestamp
 
   accountMovements AccountMovement[]
 }
@@ -120,8 +118,8 @@ model Parameter {
   id              Int      @id @default(1)
   uppercaseFields Boolean
   dateLock        DateTime
-  createdAt   DateTime @db.Timestamp @default(now())
-  updatedAt   DateTime @db.Timestamp @updatedAt
+  createdAt       DateTime @default(now()) @db.Timestamp
+  updatedAt       DateTime @updatedAt @db.Timestamp
 
   @@unique([id])
 }
@@ -131,18 +129,18 @@ model User {
   username    String   @unique
   password    String
   userGroupId Int
-  createdAt   DateTime @db.Timestamp @default(now())
-  updatedAt   DateTime @db.Timestamp @updatedAt
+  createdAt   DateTime @default(now()) @db.Timestamp
+  updatedAt   DateTime @updatedAt @db.Timestamp
 
   userGroup UserGroup @relation(fields: [userGroupId], references: [id])
 }
 
 model UserGroup {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique
-  isAdmin     Boolean
-  createdAt   DateTime @db.Timestamp @default(now())
-  updatedAt   DateTime @db.Timestamp @updatedAt
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  isAdmin   Boolean
+  createdAt DateTime @default(now()) @db.Timestamp
+  updatedAt DateTime @updatedAt @db.Timestamp
 
   users User[]
 }
