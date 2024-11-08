@@ -165,6 +165,7 @@ const FormAccountMovement = ({ initialData, onSubmit }: ContaFormProps) => {
   
   const handleCloseModal = (newSplitData?: AccountMovementSplit) => {
     setModalVisible(false);
+
     if (newSplitData?.id) {
       setSplitData((prevData) => {
         if (editSplit) {
@@ -178,14 +179,15 @@ const FormAccountMovement = ({ initialData, onSubmit }: ContaFormProps) => {
 
   const handleDeleteSplit = async(id: number) => {
     try {
-      const response = await fetch(`/api/accountMovementSplit/${id}`, {
-        method: 'DELETE',
-      });
-  
-      if (!response.ok) {
-        throw new Error('Erro ao excluir divisão do movimento bancário');
+      if (initialData?.id) {
+        const response = await fetch(`/api/accountMovementSplit/${id}`, {
+          method: 'DELETE',
+        });
+    
+        if (!response.ok) {
+          throw new Error('Erro ao excluir divisão do movimento bancário');
+        }
       }
-  
       setSplitData((prevData) => prevData.filter(accountMovementSplit => accountMovementSplit.id !== id));
     } catch (error) {
       console.error('Erro ao excluir a divisão do movimento bancário:', error);

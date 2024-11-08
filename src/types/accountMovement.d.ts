@@ -1,6 +1,6 @@
 
 export interface AccountMovementSplit {
-    id: number;
+    id?: number;
     accountMovementId?: number;
     entityId: number;
     entity?: {

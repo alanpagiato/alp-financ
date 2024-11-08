@@ -9,9 +9,12 @@ export async function PUT(req: Request, props: { params: Promise<{ id: string }>
       const data = await req.json();
       const { accountMovementId, entityId, accountSubPlanId, valueSplit } = data;
       
-      const exists = await prisma.accountMovementSplit.findUnique({
+      const exists = await prisma.accountMovementSplit.findFirst({
         where: {
-          movementId_entityId_subPlanId: {accountMovementId, entityId, accountSubPlanId },
+          accountMovementId,
+          entityId,
+          accountSubPlanId,
+          id: { not: Number(id) },
         },
       });
 

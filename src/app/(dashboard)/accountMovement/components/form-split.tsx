@@ -87,24 +87,20 @@ export function FormSplit({ onSuccess, accountMovementId, initialData }: FormSpl
       }
   }, [initialData, form]);
   
-  let tempIdCounter = 1;
-
   const onSubmit = async (data: FormSplitData) => {
     try {
-      const tempId = tempIdCounter++;
+      const isCreation = !accountMovementId;
+      const tempId = isCreation ? Date.now() : undefined;
       const createdData = { ...data };
       const entityName = entities.find((entity) => entity.id === data.entityId)?.name || '';
-      const accountSubPlanDescription = accountSubPlans.find((plan) => plan.id === data.accountSubPlanId)?.description || '';
-
-      const newSplitData = {
-        ...createdData,
-        id: !accountMovementId && tempId,
-        entity: { name: entityName },
-        accountSubPlan: { description: accountSubPlanDescription },
-      };
+      const accountSubPlanDescription: string | undefined = accountSubPlans.find((plan) => plan.id === data.accountSubPlanId)?.description;
       
-      console.log('new split', newSplitData)
-      console.log('id mov', accountMovementId)
+      const newSplitData = {
+        ...createdData, 
+        id: initialData?.id ?? tempId,
+        entity: { name: entityName },
+        accountSubPlan: { description: accountSubPlanDescription|| '' },
+      };
 
       if (accountMovementId) {
         const payload = { ...data, accountMovementId };
@@ -112,7 +108,6 @@ export function FormSplit({ onSuccess, accountMovementId, initialData }: FormSpl
         const endpoint = initialData?.id
           ? `/api/accountMovementSplit/${initialData.id}`
           : '/api/accountMovementSplit';
-  
         const response = await fetch(endpoint, {
           method,
           headers: { 'Content-Type': 'application/json' },
@@ -129,6 +124,9 @@ export function FormSplit({ onSuccess, accountMovementId, initialData }: FormSpl
           const newSplitDataWithId = {
             ...newSplitData,
             id: responseData.id,
+            accountSubPlan: {
+              description: accountSubPlanDescription || '',
+            },
           };
 
           onSuccess(newSplitDataWithId);
