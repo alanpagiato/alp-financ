@@ -53,15 +53,16 @@ export interface ContaFormProps {
     bankAccountId: number;
     movementCodeId: number;
   };
-  onSubmit: (data: any) => void;
+  onSubmit: (data: any, splitData: AccountMovementSplit[]) => void;
 }
 
 const FormAccountMovement = ({ initialData, onSubmit }: ContaFormProps) => {
   const [loading, setLoading] = useState(true);
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertTitle, setAlertTitle] = useState('');
+  const [alertType, setAlertType] = useState<'ok' | 'error'>('ok');
   const [alertMessage, setAlertMessage] = useState('');
-  
+    
   const [bankAccounts, setBankAccounts] = useState<{ id: number; name: string }[]>([]);
   const [movementCodes, setMovementCodes] = useState<{ id: number; description: string }[]>([]);
   const [openPop, setOpenPop] = useState(false);
@@ -146,8 +147,20 @@ const FormAccountMovement = ({ initialData, onSubmit }: ContaFormProps) => {
         bankAccountId: Number(data.bankAccountId),
         movementCodeId: Number(data.movementCodeId),
       };
+
+      const hasDuplicates = splitData.some((item, index) =>
+        splitData.findIndex((otherItem) =>
+            otherItem.entityId === item.entityId &&
+            otherItem.accountSubPlanId === item.accountSubPlanId
+        ) !== index
+      );
+
+      if (hasDuplicates) {
+          handleShowErrorAlert("Existem registros duplicados no detalhamento de divisão de valores.");
+          return;
+      }
       
-      onSubmit(submittedData);
+      onSubmit(submittedData, splitData);
     } finally {
       setLoading(false);
     }
@@ -194,6 +207,13 @@ const FormAccountMovement = ({ initialData, onSubmit }: ContaFormProps) => {
       alert('Erro ao excluir a divisão do movimento bancário');
     }
   };
+
+  const handleShowErrorAlert = (message: string) => {
+    setAlertTitle("Erro");
+    setAlertMessage(message);
+    setAlertType("error");
+    setAlertVisible(true);
+  };
   
   return (
     <>
@@ -202,7 +222,7 @@ const FormAccountMovement = ({ initialData, onSubmit }: ContaFormProps) => {
         title={alertTitle} 
         message={alertMessage} 
         isVisible={alertVisible}
-        type={"ok"}
+        type={alertType}
         onClose={() => setAlertVisible(false)} 
       />
       <ModalForm

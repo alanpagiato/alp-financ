@@ -4,7 +4,7 @@ import prisma from '@/lib/prisma';
 export async function POST(req: Request) {
     try {
       const data = await req.json();
-      const { accountMovementId, entityId, accountSubPlanId } = data;
+      const { accountMovementId, entityId, accountSubPlanId, valueSplit } = data;
       
       const exists = await prisma.accountMovementSplit.findUnique({
         where: {
@@ -21,7 +21,7 @@ export async function POST(req: Request) {
           accountMovementId,
           entityId,
           accountSubPlanId,
-          valueSplit: data.valueSplit,
+          valueSplit,
         },
       });
   

@@ -11,11 +11,11 @@ import { LoadingModal } from "@/components/loadingModal";
 export default function Page() {
   const [data, setData] = useState<AccountPlan[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
 
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertTitle, setAlertTitle] = useState('');
   const [alertMessage, setAlertMessage] = useState('');
+  const [alertType, setAlertType] = useState<'ok' | 'error'>('ok');
 
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [confirmId, setConfirmId] = useState<number | null>(null);
@@ -27,7 +27,7 @@ export default function Page() {
         setLoading(false);
       })
       .catch((err) => {
-        setError(err.message);
+        handleShowErrorAlert(err.message);
         setLoading(false);
       });
   }, []);
@@ -35,6 +35,7 @@ export default function Page() {
   async function fetchData(): Promise<AccountPlan[]> {
     const response = await fetch('/api/accountPlan');
     if (!response.ok) {
+      handleShowErrorAlert('Falha ao buscar os dados');
       throw new Error('Falha ao buscar os dados');
     }
     return response.json();
@@ -55,18 +56,16 @@ export default function Page() {
       });
   
       if (!response.ok) {
+        handleShowErrorAlert('Erro ao excluir plano de contas');
         throw new Error('Erro ao excluir plano de contas');
       }
   
-      setAlertTitle("Sucesso!");
-      setAlertMessage("Plano de contas excluído com sucesso.");
-      setAlertVisible(true);
+      handleShowSuccessAlert("Plano de contas excluído com sucesso.");
   
       setData((prevData) => prevData.filter(accountPlan => accountPlan.id !== confirmId));
-      setTimeout(() => setAlertVisible(false), 1200);
     } catch (error) {
       console.error('Erro ao excluir o plano de contas:', error);
-      alert('Erro ao excluir o plano de contas');
+      handleShowErrorAlert('Erro ao excluir o plano de contas');
     }
   };
 
@@ -75,9 +74,19 @@ export default function Page() {
     setConfirmId(null);
   };
 
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
+  const handleShowSuccessAlert = (message: string) => {
+    setAlertTitle("Sucesso!");
+    setAlertMessage(message);
+    setAlertType("ok");
+    setAlertVisible(true);
+  };
+
+  const handleShowErrorAlert = (message: string) => {
+    setAlertTitle("Erro");
+    setAlertMessage(message);
+    setAlertType("error");
+    setAlertVisible(true);
+  };
 
   return (
     <>
@@ -93,6 +102,7 @@ export default function Page() {
             title={alertTitle} 
             message={alertMessage} 
             isVisible={alertVisible}
+            type={alertType}
             onClose={() => setAlertVisible(false)} 
           />
           

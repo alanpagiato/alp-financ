@@ -25,10 +25,10 @@ export async function PUT(req: Request, props: { params: Promise<{ id: string }>
       const updatedData = await prisma.accountMovementSplit.update({
         where: { id: Number(id) },
         data: {
-          accountMovementId: accountMovementId,
-          entityId: entityId,
-          accountSubPlanId: accountSubPlanId,
-          valueSplit: valueSplit
+          accountMovementId,
+          entityId,
+          accountSubPlanId,
+          valueSplit
         },
       });
 

@@ -13,11 +13,11 @@ export default function Page() {
   const [bankAccountMap, setBankAccountMap] = useState<Record<number, string>>({});
   const [movementCodeMap, setMovementCodeMap] = useState<Record<number, { description: string; nature: string }>>({});
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-
+  
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertTitle, setAlertTitle] = useState('');
   const [alertMessage, setAlertMessage] = useState('');
+  const [alertType, setAlertType] = useState<'ok' | 'error'>('ok');
 
   const [confirmVisible, setConfirmVisible] = useState(false);
   const [confirmId, setConfirmId] = useState<number | null>(null);
@@ -45,7 +45,7 @@ export default function Page() {
         setLoading(false);
       })
       .catch((err) => {
-        setError(err.message);
+        handleShowErrorAlert(err.message);
         setLoading(false);
       });
   }, []);
@@ -53,6 +53,7 @@ export default function Page() {
   async function fetchData(): Promise<AccountMovement[]> {
     const response = await fetch('/api/accountMovement');
     if (!response.ok) {
+      handleShowErrorAlert('Falha ao buscar os dados');
       throw new Error('Falha ao buscar os dados');
     }
     return response.json();
@@ -61,6 +62,7 @@ export default function Page() {
   async function fetchBankAccounts(): Promise<{ id: number; name: string }[]> {
     const response = await fetch('/api/bankAccount');
     if (!response.ok) {
+      handleShowErrorAlert('Falha ao buscar os grupos');
       throw new Error('Falha ao buscar os grupos');
     }
     return response.json();
@@ -69,6 +71,7 @@ export default function Page() {
   async function fetchMovementCodes(): Promise<{ id: number; description: string; nature: string }[]> {
     const response = await fetch('/api/movementCode');
     if (!response.ok) {
+      handleShowErrorAlert('Falha ao buscar os códigos de lançamento');
       throw new Error('Falha ao buscar os códigos de lançamento');
     }
     return response.json();
@@ -89,18 +92,16 @@ export default function Page() {
       });
   
       if (!response.ok) {
+        handleShowErrorAlert('Erro ao excluir movimento bancário');
         throw new Error('Erro ao excluir movimento bancário');
       }
   
-      setAlertTitle("Sucesso!");
-      setAlertMessage("Movimento bancário excluído com sucesso.");
-      setAlertVisible(true);
+      handleShowSuccessAlert("Movimento bancário excluído com sucesso.");
   
       setData((prevData) => prevData.filter(accountMovement => accountMovement.id !== confirmId));
-      setTimeout(() => setAlertVisible(false), 1200);
     } catch (error) {
       console.error('Erro ao excluir o movimento bancário:', error);
-      alert('Erro ao excluir o movimento bancário');
+      handleShowErrorAlert('Erro ao excluir o movimento bancário');
     }
   };
 
@@ -109,9 +110,19 @@ export default function Page() {
     setConfirmId(null);
   };
 
-  if (error) {
-    return <div>Error: {error}</div>;
-  }
+  const handleShowSuccessAlert = (message: string) => {
+    setAlertTitle("Sucesso!");
+    setAlertMessage(message);
+    setAlertType("ok");
+    setAlertVisible(true);
+  };
+
+  const handleShowErrorAlert = (message: string) => {
+    setAlertTitle("Erro");
+    setAlertMessage(message);
+    setAlertType("error");
+    setAlertVisible(true);
+  };
 
   return (
     <>
@@ -127,6 +138,7 @@ export default function Page() {
             title={alertTitle} 
             message={alertMessage} 
             isVisible={alertVisible}
+            type={alertType}
             onClose={() => setAlertVisible(false)} 
           />
           

@@ -6,6 +6,8 @@ import FormAccountMovement from "../components/form";
 import { useRouter } from "next/navigation";
 import { LoadingModal } from '@/components/loadingModal';
 
+import { AccountMovementSplit } from '@/types/accountMovement';
+
 export default function Page() {
   const [alertVisible, setAlertVisible] = useState(false);
   const [alertTitle, setAlertTitle] = useState('');
@@ -15,7 +17,7 @@ export default function Page() {
   
   const router = useRouter();
 
-  const handleSubmit = async (data: any) => {
+  const handleSubmit = async (data: any, splitData: AccountMovementSplit[]) => {
     try {
       setLoading(true)
       const response = await fetch('/api/accountMovement', {
@@ -29,7 +31,29 @@ export default function Page() {
       if (!response.ok) {
         setLoading(false)
         const resData = await response.json();
-        throw new Error(resData.message || 'Erro ao salvar os dados');
+        throw new Error(resData.message || 'Erro ao salvar os dados da movimentação bancária');
+      }
+
+      const accountMovementData = await response.json();
+      const accountMovementId = accountMovementData.id;
+
+      const updatedSplitData = splitData.map((item) => ({
+        ...item,
+        accountMovementId
+      }));
+
+      const bulkResponse = await fetch('/api/accountMovementSplit/bulk', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedSplitData),
+      });
+
+      if (!bulkResponse.ok) {
+        setLoading(false);
+        const resData = await bulkResponse.json();
+        throw new Error(resData.message || 'Erro ao salvar os dados das divisões do movimento bancário.');
       }
 
       setLoading(false)
@@ -38,7 +62,7 @@ export default function Page() {
     } catch (error) {
       console.error('Erro ao salvar o movimento bancário:', error);
       setLoading(false)
-      handleShowErrorAlert('Ocorreu um erro ao editar o movimento bancário. Consulte o administrador do sistema.');
+      handleShowErrorAlert('Ocorreu um erro ao adicionar o movimento bancário. Consulte o administrador do sistema.');
     }
   };
 

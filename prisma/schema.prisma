@@ -41,7 +41,7 @@ model AccountMovementSplit {
   createdAt         DateTime @default(now()) @db.Timestamp
   updatedAt         DateTime @updatedAt @db.Timestamp
 
-  accountMovement AccountMovement @relation(fields: [accountMovementId], references: [id])
+  accountMovement AccountMovement @relation(fields: [accountMovementId], references: [id], onDelete: Cascade, onUpdate: Cascade)
   entity          Entity          @relation(fields: [entityId], references: [id])
   accountSubPlan  AccountSubPlan  @relation(fields: [accountSubPlanId], references: [id])
 
